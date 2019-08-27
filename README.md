@@ -23,6 +23,6 @@ I followed along with a tutorial by [Derek Banas](https://www.youtube.com/watch?
 ### 8/27/19
 
 - Slow down the ship a little to make it more playable
-- Add asteroids to the game. The asteroids are a weird shape and I am working on figuring out why.
+- Add asteroids to the game.
 - Add bullets
 - Let the user shoot the bullets.
