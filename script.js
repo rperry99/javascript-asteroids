@@ -172,9 +172,9 @@ class Asteroid {
         this.x - this.radius * Math.cos(vertAngle * i + radians),
         this.y - this.radius * Math.sin(vertAngle * i + radians)
       );
-      ctx.closePath();
-      ctx.stroke();
     }
+    ctx.closePath();
+    ctx.stroke();
   }
 }
 
