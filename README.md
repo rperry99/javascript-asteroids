@@ -9,6 +9,7 @@ I followed along with a tutorial by [Derek Banas](https://www.youtube.com/watch?
 - W - Move Forward
 - A - Rotate Counter Clockwise
 - D - Rotate Clockwise
+- Space - Shoot
 
 # Work Log
 
@@ -18,3 +19,10 @@ I followed along with a tutorial by [Derek Banas](https://www.youtube.com/watch?
 - Add starting HTML, CSS, and JS Files
 - Add the ship to the screen and let the player move it around and rotate it
 - When the player hits a wall, they will appear on the other side.
+
+### 8/27/19
+
+- Slow down the ship a little to make it more playable
+- Add asteroids to the game. The asteroids are a weird shape and I am working on figuring out why.
+- Add bullets
+- Let the user shoot the bullets.
