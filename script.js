@@ -6,6 +6,8 @@ let backgroundColor = "black";
 let keys = []; //For determining what key is pressed and lets the user press multiple at once.
 let bullets = [];
 let asteroids = [];
+let score = 0;
+let lives = 3;
 
 document.addEventListener("DOMContentLoaded", SetupCanvas);
 
@@ -137,14 +139,16 @@ class Bullet {
 }
 
 class Asteroid {
-  constructor(x, y) {
+  constructor(x, y, radius, level, collisionRadius) {
     this.visible = true;
-    this.x = Math.floor(Math.random() * canvasWidth);
-    this.y = Math.floor(Math.random() * canvasHeight);
-    this.speed = 1;
-    this.radius = 50;
+    this.x = x || Math.floor(Math.random() * canvasWidth);
+    this.y = y || Math.floor(Math.random() * canvasHeight);
+    this.speed = 1.2;
+    this.radius = radius || 50;
     this.angle = Math.floor(Math.random() * 359);
     this.strokeColor = gameColor;
+    this.collisionRadius = collisionRadius || 46;
+    this.level = level || 1;
   }
   Update() {
     let radians = (this.angle / Math.PI) * 180;
@@ -178,6 +182,38 @@ class Asteroid {
   }
 }
 
+function CircleCollision(p1x, p1y, r1, p2x, p2y, r2) {
+  let radiusSum;
+  let xDiff;
+  let yDiff;
+  radiusSum = r1 + r2;
+  xDiff = p1x - p2x;
+  yDiff = p1y - p2y;
+  //This formula detects the collisions
+  if (radiusSum > Math.sqrt(xDiff * xDiff + yDiff * yDiff)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function DrawLifeShips() {
+  let startX = 1350; //In Pixels
+  let startY = 10; //In Pixels
+  let points = [[9, 9], [-9, 9]]; //Represents drawn triangles
+  ctx.strokeSyle = gameColor;
+  for (let i = 0; i < lives; i++) {
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    for (let j = 0; j < points.length; j++) {
+      ctx.lineTo(startX + points[j][0], startY + points[j][1]);
+    }
+    ctx.closePath();
+    ctx.stroke();
+    startX -= 30; //In Pixels
+  }
+}
+
 function Render() {
   ship.movingForward = keys[87]; //Keycode 87 is the keycode for W
   if (keys[68]) {
@@ -189,8 +225,82 @@ function Render() {
     ship.Rotate(-1);
   }
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-  ship.Update();
-  ship.Draw();
+  ctx.fillStyle = gameColor;
+  ctx.font = "21px Arial";
+  ctx.fillText("SCORE: " + score.toString(), 20, 35); //The 20, 35 are x and y coordinates to say where to draw the words on the screen.
+  if (lives <= 0) {
+    ship.visible = false;
+    ctx.fillStyle = gameColor;
+    ctx.font = "50px Arial";
+    ctx.fillText("GAME OVER!", canvasWidth / 2 - 150, canvasHeight / 2);
+  }
+  DrawLifeShips();
+
+  //Check for collisions with asteroids and ship
+  if (asteroids.length !== 0) {
+    for (let k = 0; k < asteroids.length; k++) {
+      if (
+        CircleCollision(
+          ship.x,
+          ship.y,
+          11,
+          asteroids[k].x,
+          asteroids[k].y,
+          asteroids[k].collisionRadius
+        )
+      ) {
+        ship.x = canvasWidth / 2;
+        ship.y = canvasHeight / 2;
+        ship.velocityX = 0;
+        ship.velocityY = 0;
+        lives--;
+      }
+    }
+  }
+
+  //Check for collisions with bullets and asteroids
+  if (asteroids.length !== 0 && bullets.length != 0) {
+    loop1: for (let l = 0; l < asteroids.length; l++) {
+      for (let m = 0; m < bullets.length; m++) {
+        if (
+          CircleCollision(
+            bullets[m].x,
+            bullets[m].y,
+            3,
+            asteroids[l].x,
+            asteroids[l].y,
+            asteroids[l].collisionRadius
+          )
+        ) {
+          if (asteroids[l].level === 1) {
+            asteroids.push(
+              new Asteroid(asteroids[l].x - 5, asteroids[l].y - 5, 25, 2, 22)
+            );
+            asteroids.push(
+              new Asteroid(asteroids[l].x + 5, asteroids[l].y + 5, 25, 2, 22)
+            );
+          } else if (asteroids[l].level === 2) {
+            asteroids.push(
+              new Asteroid(asteroids[l].x - 5, asteroids[l].y - 5, 15, 3, 12)
+            );
+            asteroids.push(
+              new Asteroid(asteroids[l].x + 5, asteroids[l].y + 5, 15, 3, 12)
+            );
+          }
+          asteroids.splice(l, 1);
+          bullets.splice(m, 1);
+          score += 20;
+          break loop1;
+        }
+      }
+    }
+  }
+
+  if (ship.visible) {
+    ship.Update();
+    ship.Draw();
+  }
+
   if (bullets.length !== 0) {
     for (let i = 0; i < bullets.length; i++) {
       bullets[i].Update();
@@ -200,7 +310,7 @@ function Render() {
   if (asteroids.length !== 0) {
     for (let j = 0; j < asteroids.length; j++) {
       asteroids[j].Update();
-      asteroids[j].Draw();
+      asteroids[j].Draw(j);
     }
   }
   requestAnimationFrame(Render);
