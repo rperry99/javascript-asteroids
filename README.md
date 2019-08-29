@@ -26,3 +26,10 @@ I followed along with a tutorial by [Derek Banas](https://www.youtube.com/watch?
 - Add asteroids to the game.
 - Add bullets
 - Let the user shoot the bullets.
+
+### 8/29/19
+
+- Finish the base game
+- Add score
+- Add lives
+- Add collision with ship and bullets
